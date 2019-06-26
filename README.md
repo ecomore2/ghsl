@@ -15,8 +15,8 @@ projected on the spherical Mercator projection (
 [EPSG](http://www.epsg.org):[3857](https://epsg.io/3857), which is the
 projection used by [Google Maps](https://www.google.com/maps),
 [OpenStreetMap](https://www.openstreetmap.org) and [Bing
-Maps](https://www.bing.com/maps) among other) with a resolution of 38 m.
-Cleaned data can be downloaded
+Maps](https://www.bing.com/maps) among other) with a **resolution of 38
+m**. Cleaned data can be downloaded
     here:
 
   - [builtup1990res38m3857.tif](https://www.dropbox.com/s/4sxdsmj0s2nxy5c/builtup1990res38m3857.tif?raw=1)
