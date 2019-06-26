@@ -16,8 +16,17 @@ projected on the spherical Mercator projection (
 projection used by [Google Maps](https://www.google.com/maps),
 [OpenStreetMap](https://www.openstreetmap.org) and [Bing
 Maps](https://www.bing.com/maps) among other) with a resolution of 38 m.
-Data are available for 1999 (1 MB), 2000 (1 MB) and 2014 (1 MB)
-[here](https://www.dropbox.com/sh/uj3872y5keso5ev/AACXrlnC1YCk_PYkb0nhgD5Ea?dl=0).
+Cleaned data can be downloaded
+    here:
+
+  - [builtup1990res38m3857.tif](https://www.dropbox.com/s/4sxdsmj0s2nxy5c/builtup1990res38m3857.tif?raw=1)
+    (1
+    MB)
+  - [builtup2000res38m3857.tif](https://www.dropbox.com/s/en0u787brvk75pe/builtup2000res38m3857.tif?raw=1)
+    (1
+    MB)
+  - [builtup2014res38m3857.tif](https://www.dropbox.com/s/0jxx754zudgldf2/builtup2014res38m3857.tif?raw=1)
+    (1 MB)
 
 Raster file can be downloaded directly from R as
 so:
