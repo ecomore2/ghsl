@@ -377,6 +377,13 @@ $(document).ready(function () {
 
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#utilitary-function">Utilitary function</a></li>
+<li><a href="#loading-the-polygon-of-vientiane">Loading the polygon of Vientiane</a></li>
+<li><a href="#making-ghs-raster-files">Making GHS raster files</a></li>
+</ul>
+</div>
 
 <!--
 IMAGES:
@@ -398,6 +405,50 @@ title wherever you want to display the reference list.
   margin-right: auto;
 }
 </style>
+<pre class="r"><code>&gt; library(sp)
+&gt; library(raster)
+&gt; library(ecomore)
+&gt; library(magrittr)</code></pre>
+<div id="utilitary-function" class="section level2">
+<h2>Utilitary function</h2>
+<pre class="r"><code>&gt; make_url &lt;- function(yr) {
++   root &lt;- paste0(&quot;http://cidportal.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/&quot;,
++                  &quot;GHS_BUILT_LDSMT_GLOBE_R2015B/GHS_BUILT_LDS&quot;)
++   globe &lt;- &quot;_GLOBE_R2016A_&quot;
++   built &lt;- &quot;/V1-0/GHS_BUILT_LDS&quot;
++   ext &lt;- &quot;_v1_0.zip&quot;
++   res &lt;- &quot;3857_38&quot;
++   paste0(root, yr, globe, res, built, yr, globe, res, ext)
++ }</code></pre>
+</div>
+<div id="loading-the-polygon-of-vientiane" class="section level2">
+<h2>Loading the polygon of Vientiane</h2>
+<p>Downloading the polygons of the provinces of Lao PDR from <a href="https://gadm.org/index.html">GADM</a>:</p>
+<pre class="r"><code>&gt; if (!dir.exists(&quot;data-raw&quot;)) dir.create(&quot;data-raw&quot;)
+&gt; file &lt;- &quot;data-raw/gadm36_LAO_1_sp.rds&quot;
+&gt; if (!file.exists(file))
++   download.file(&quot;https://biogeo.ucdavis.edu/data/gadm3.6/Rsp/gadm36_LAO_1_sp.rds&quot;, file)</code></pre>
+<p>Making the polygon of Vientiane prefecture:</p>
+<pre class="r"><code>&gt; vientiane &lt;- &quot;data-raw/gadm36_LAO_1_sp.rds&quot; %&gt;% 
++   readRDS() %&gt;% 
++   subset(NAME_1 == &quot;Vientiane [prefecture]&quot;)</code></pre>
+</div>
+<div id="making-ghs-raster-files" class="section level2">
+<h2>Making GHS raster files</h2>
+<p>The pipeline:</p>
+<pre class="r"><code>&gt; if (!dir.exists(&quot;data&quot;)) dir.create(&quot;data&quot;)
+&gt; system.time(for (yr in c(1990, 2000, 2014)) {
++   file &lt;- paste0(&quot;data-raw/y&quot;, yr, &quot;.zip&quot;)
++   dir &lt;- paste0(&quot;GHS_BUILT_LDS&quot;, yr, &quot;_GLOBE_R2016A_3857_38_v1_0&quot;)
++   if (!file.exists(file)) download.file(make_url(yr), file)
++   unzip(file)
++   yr %&gt;% paste0(dir, &quot;/GHS_BUILT_LDS&quot;, ., &quot;_GLOBE_R2016A_3857_38_v1_0_p2.tif&quot;) %&gt;% 
++     raster() %&gt;% 
++     crop_raster(., spTransform(vientiane, crs(.))) %&gt;% 
++     writeRaster(paste0(&quot;data/builtup&quot;, yr, &quot;res38m3857.tif&quot;), &quot;GTiff&quot;, overwrite = TRUE)
++   unlink(dir, TRUE)
++ })</code></pre>
+</div>
 
 
 

@@ -44,12 +44,76 @@ knitr::knit_hooks$set(
     options(prompt = if (options$engine %in% c("sh", "bash")) "$ " else "> ")
   })
 
-knitr::opts_chunk$set(margin = TRUE, prompt = TRUE, comment = "",
+knitr::opts_chunk$set(margin = TRUE, prompt = TRUE, comment = "", eval = FALSE,
                       collapse = TRUE, cache = FALSE, autodep = TRUE,
                       dev.args = list(pointsize = 11), fig.height = 3.5,
                       fig.width = 4.24725, fig.retina = 2, fig.align = "center")
 
 options(width = 137)
 ```
+
+```{r}
+library(sp)
+library(raster)
+library(ecomore)
+library(magrittr)
+```
+
+## Utilitary function
+
+```{r}
+make_url <- function(yr) {
+  root <- paste0("http://cidportal.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/",
+                 "GHS_BUILT_LDSMT_GLOBE_R2015B/GHS_BUILT_LDS")
+  globe <- "_GLOBE_R2016A_"
+  built <- "/V1-0/GHS_BUILT_LDS"
+  ext <- "_v1_0.zip"
+  res <- "3857_38"
+  paste0(root, yr, globe, res, built, yr, globe, res, ext)
+}
+```
+
+## Loading the polygon of Vientiane
+
+Downloading the polygons of the provinces of Lao PDR from
+[GADM](https://gadm.org/index.html):
+
+```{r}
+if (!dir.exists("data-raw")) dir.create("data-raw")
+file <- "data-raw/gadm36_LAO_1_sp.rds"
+if (!file.exists(file))
+  download.file("https://biogeo.ucdavis.edu/data/gadm3.6/Rsp/gadm36_LAO_1_sp.rds", file)
+```
+
+Making the polygon of Vientiane prefecture:
+
+```{r}
+vientiane <- "data-raw/gadm36_LAO_1_sp.rds" %>% 
+  readRDS() %>% 
+  subset(NAME_1 == "Vientiane [prefecture]")
+```
+
+## Making GHS raster files
+
+The pipeline:
+
+```{r}
+if (!dir.exists("data")) dir.create("data")
+system.time(for (yr in c(1990, 2000, 2014)) {
+  file <- paste0("data-raw/y", yr, ".zip")
+  dir <- paste0("GHS_BUILT_LDS", yr, "_GLOBE_R2016A_3857_38_v1_0")
+  if (!file.exists(file)) download.file(make_url(yr), file)
+  unzip(file)
+  yr %>% paste0(dir, "/GHS_BUILT_LDS", ., "_GLOBE_R2016A_3857_38_v1_0_p2.tif") %>% 
+    raster() %>% 
+    crop_raster(., spTransform(vientiane, crs(.))) %>% 
+    writeRaster(paste0("data/builtup", yr, "res38m3857.tif"), "GTiff", overwrite = TRUE)
+  unlink(dir, TRUE)
+})
+```
+
+
+
+
 
 
